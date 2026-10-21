@@ -218,3 +218,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# 本项目运行数据（爬取图片、分类结果、缓存）
+data/

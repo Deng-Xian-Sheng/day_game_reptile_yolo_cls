@@ -34,4 +34,10 @@
 请在下方记录：
 
 ```markdown
+- [首个可用版本：爬取、模型筛选、Web 展示](README.md)
+  - 站点正文图片为 AES-128-CBC 加密，key/iv 已从前端 JS 提取并放入 `config.py`
+  - 已实现搜索翻页、详情页解析、图片解密与断点续爬（`crawler.py`）
+  - 已实现 HF 门控模型下载、35 类阈值 + margin 判定、推理缓存、mock 测试（`classify.py`）
+  - 已实现响应式 Web 展示与灯箱（`app.py` + `templates/index.html`）
+  - 虚拟机内已用真实站点小规模爬取 + mock 分类 + 网站测试；真实模型推理需在宿主机执行
 ```
