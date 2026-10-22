@@ -121,6 +121,136 @@
     #filter:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 92, 138, .15); }
     #shown { color: var(--muted); font-size: 13px; white-space: nowrap; }
 
+    .filter-column {
+      flex: 1;
+      min-width: 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .query-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      min-height: 18px;
+      font-size: 12px;
+    }
+    .query-label { color: #778392; }
+    .query-tag {
+      padding: 1px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .03);
+      font-size: 11.5px;
+    }
+    .query-tag.include {
+      color: #ffd0dd;
+      border-color: rgba(255, 92, 138, .35);
+      background: rgba(255, 92, 138, .08);
+    }
+    .query-tag.exclude {
+      color: #ffb4b4;
+      border-color: rgba(255, 99, 99, .35);
+      background: rgba(255, 99, 99, .08);
+    }
+    .search-help { color: #66717f; font-size: 11.5px; }
+    .search-help code {
+      padding: 1px 5px;
+      font-size: 11px;
+      border-color: #2b323c;
+      color: #ffd0dd;
+    }
+
+    .sort-panel {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 18px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(20, 23, 28, .72);
+    }
+    .sort-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    .sort-label { color: var(--muted); font-size: 12px; }
+    .sort-panel select {
+      padding: 6px 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #0d1015;
+      color: var(--text);
+      font-size: 12px;
+      outline: none;
+    }
+    .sort-panel select:focus { border-color: var(--accent); }
+    .sort-add, .sort-clear {
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .sort-add {
+      border: 1px solid rgba(255, 92, 138, .4);
+      background: rgba(255, 92, 138, .14);
+      color: #ffd0dd;
+    }
+    .sort-add:hover { background: rgba(255, 92, 138, .22); }
+    .sort-clear {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--muted);
+    }
+    .sort-clear:hover { color: var(--text); border-color: #49515d; }
+    .sort-hint { color: #66717f; font-size: 11.5px; }
+    .sort-rules {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      flex: 1;
+      min-width: 180px;
+    }
+    .sort-empty { color: #66717f; font-size: 12px; }
+    .sort-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #0d1015;
+      color: var(--text);
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .sort-chip:hover { border-color: rgba(255, 92, 138, .55); }
+    .sort-order {
+      display: inline-grid;
+      place-items: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(255, 92, 138, .18);
+      color: var(--accent);
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .sort-arrow { color: var(--accent-2); font-weight: 700; }
+    .sort-remove {
+      padding: 0 2px;
+      color: #8b95a3;
+      font-size: 14px;
+      line-height: 1;
+    }
+    .sort-remove:hover { color: #ff7878; }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
@@ -378,7 +508,11 @@
       .grid { grid-template-columns: 1fr; gap: 16px; }
       .card-top h2 { font-size: 16px; }
       .toolbar { flex-wrap: wrap; }
+      .filter-column { min-width: 100%; }
       #shown { width: 100%; }
+      .sort-controls { width: 100%; }
+      .sort-panel select { flex: 1; min-width: 0; }
+      .sort-rules { width: 100%; }
       .media-button img { max-height: 70vh; }
       .card-foot { flex-wrap: wrap; }
       .link-text { width: 100%; }
@@ -420,15 +554,53 @@
 
     {% if matches %}
       <div class="toolbar">
-        <div class="filter-wrap">
-          <input id="filter" type="search" placeholder="按标题或链接过滤…" autocomplete="off">
+        <div class="filter-column">
+          <div class="filter-wrap">
+            <input id="filter" type="search"
+                   placeholder="如：动漫 护士 -口交，或：包含动漫和护士 不包含口交"
+                   autocomplete="off">
+          </div>
+          <div id="query-preview" class="query-preview" hidden></div>
+          <div class="search-help">
+            搜索：空格 / “和” / <code>*</code> 表示同时包含（不要求连续）；
+            <code>-词</code>、<code>!词</code> 或 <code>不包含词</code> 排除；
+            引号内视为一个词组（关键词含“和”时可加引号）。包含与排除可以混用。
+          </div>
         </div>
         <span id="shown">显示 {{ matches|length }} / {{ matches|length }} 篇</span>
       </div>
 
+      <div class="sort-panel" aria-label="排序设置">
+        <div class="sort-controls">
+          <span class="sort-label">排序</span>
+          <select id="sort-field" aria-label="排序字段">
+            <option value="published" selected>发布时间</option>
+            <option value="total">总图片数</option>
+            <option value="matched">命中图片数</option>
+            <option value="other">其他图片数</option>
+            <option value="confidence">最高置信度</option>
+          </select>
+          <select id="sort-dir" aria-label="排序方向">
+            <option value="desc" selected>降序</option>
+            <option value="asc">升序</option>
+          </select>
+          <button type="button" id="sort-add" class="sort-add">添加排序</button>
+          <button type="button" id="sort-clear" class="sort-clear">清空</button>
+          <span class="sort-hint">可叠加多个条件，先添加的优先</span>
+        </div>
+        <div id="sort-rules" class="sort-rules"></div>
+      </div>
+
       <section class="grid" id="cards">
         {% for m in matches %}
-          <article class="card" data-search="{{ m.search_text }}">
+          <article class="card"
+                   data-search="{{ m.search_text }}"
+                   data-published="{{ m.published }}"
+                   data-total="{{ m.image_total }}"
+                   data-matched="{{ m.matched_count }}"
+                   data-other="{{ m.other_count }}"
+                   data-confidence="{{ '%.6f'|format(m.best_confidence) }}"
+                   data-index="{{ loop.index0 }}">
             <div class="card-top">
               <h2>
                 <a href="{{ m.url }}" target="_blank" rel="noopener noreferrer">{{ m.title }}</a>
@@ -543,66 +715,6 @@
     <img id="lightbox-img" alt="大图预览">
   </div>
 
-  <script>
-    (function () {
-      "use strict";
-
-      // 图片加载失败时显示占位提示
-      document.addEventListener("error", function (event) {
-        var img = event.target;
-        if (img && img.tagName === "IMG") {
-          var box = img.closest(".media-button, .strip-button, .thumb-button");
-          if (box) box.classList.add("broken");
-        }
-      }, true);
-
-      // 灯箱
-      var lightbox = document.getElementById("lightbox");
-      var lightboxImg = document.getElementById("lightbox-img");
-      function closeLightbox() {
-        lightbox.hidden = true;
-        lightboxImg.removeAttribute("src");
-        document.body.classList.remove("no-scroll");
-      }
-      document.addEventListener("click", function (event) {
-        var trigger = event.target.closest("[data-lightbox]");
-        if (trigger) {
-          event.preventDefault();
-          lightboxImg.src = trigger.getAttribute("data-lightbox");
-          lightbox.hidden = false;
-          document.body.classList.add("no-scroll");
-          return;
-        }
-        if (!lightbox.hidden &&
-            (event.target === lightbox || event.target.closest(".lightbox-close"))) {
-          closeLightbox();
-        }
-      });
-      document.addEventListener("keydown", function (event) {
-        if (event.key === "Escape" && !lightbox.hidden) closeLightbox();
-      });
-
-      // 标题/链接过滤
-      var filter = document.getElementById("filter");
-      var cards = Array.prototype.slice.call(document.querySelectorAll(".card"));
-      var shown = document.getElementById("shown");
-      var empty = document.getElementById("empty-filter");
-      if (filter && cards.length) {
-        var applyFilter = function () {
-          var query = filter.value.trim().toLowerCase();
-          var visible = 0;
-          cards.forEach(function (card) {
-            var ok = !query || (card.dataset.search || "").indexOf(query) !== -1;
-            card.hidden = !ok;
-            if (ok) visible += 1;
-          });
-          if (shown) shown.textContent = "显示 " + visible + " / " + cards.length + " 篇";
-          if (empty) empty.hidden = visible !== 0;
-        };
-        filter.addEventListener("input", applyFilter);
-        applyFilter();
-      }
-    })();
-  </script>
+  <script src="{{ url_for('static', filename='app.js', v='2') }}" defer></script>
 </body>
 </html>

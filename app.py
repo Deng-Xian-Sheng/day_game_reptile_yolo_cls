@@ -69,6 +69,13 @@ def prepare_matches(matches: list[dict], data_dir: Path) -> list[dict]:
                 other_images.append(prepare_image(image, data_dir))
         match["other_images"] = other_images
 
+        # 排序用的数据
+        match["image_total"] = len(images) + len(other_images)
+        match["matched_count"] = len(images)
+        match["other_count"] = len(other_images)
+        match["best_confidence"] = float(best.get("confidence") or 0)
+        match["published"] = match.get("published_at") or ""
+
         match["title"] = match.get("title") or "未命名内容"
         match["search_text"] = f"{match['title']} {match.get('url', '')}".lower()
         prepared.append(match)
